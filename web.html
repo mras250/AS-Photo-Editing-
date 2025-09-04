@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Photo Filter Editor</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: linear-gradient(135deg, #fbc2eb, #a6c1ee);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .container {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 25px;
+      border-radius: 20px;
+      box-shadow: 0px 8px 20px rgba(0,0,0,0.3);
+      max-width: 1000px;
+      width: 100%;
+      text-align: center;
+    }
+    h1 { color: #333; margin-bottom: 20px; }
+    .images {
+      display: none;
+      justify-content: space-around;
+      align-items: center;
+      margin-top: 20px;
+      gap: 20px;
+    }
+    .images img {
+      max-width: 45%;
+      border: 5px solid #ddd;
+      border-radius: 10px;
+    }
+    .sliders, .filters-gallery {
+      display: none;
+      margin-top: 20px;
+    }
+    .slider-box { margin: 15px 0; text-align: left; }
+    label { font-weight: bold; display: block; margin-bottom: 5px; color: #444; }
+    input[type="range"] { width: 100%; }
+    button {
+      margin: 10px 5px;
+      padding: 10px 20px;
+      border: none;
+      background: #3498db;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: 0.3s;
+    }
+    button:hover { background: #2980b9; }
+
+    /* Filters gallery */
+    .filters-gallery {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+    }
+    .filter-option {
+      width: 120px;
+      text-align: center;
+      cursor: pointer;
+    }
+    .filter-option img {
+      width: 100%;
+      border-radius: 8px;
+      border: 2px solid #ccc;
+      transition: 0.3s;
+    }
+    .filter-option img:hover {
+      border-color: #3498db;
+      transform: scale(1.05);
+    }
+    .filter-option span {
+      display: block;
+      margin-top: 5px;
+      font-size: 14px;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🌟 Photo Filter Editor 🌟</h1>
+    <input type="file" id="upload" accept="image/*"><br>
+
+    <!-- Images side by side -->
+    <div class="images" id="image-box">
+      <div>
+        <h3>Original</h3>
+        <img id="original" src="" alt="Original Image">
+      </div>
+      <div>
+        <h3>Edited</h3>
+        <img id="edited" src="" alt="Edited Image">
+      </div>
+    </div>
+
+    <!-- Sliders -->
+    <div class="sliders" id="sliders-box">
+      <div class="slider-box">
+        <label>Brightness</label>
+        <input type="range" id="brightness" min="0" max="200" value="100">
+      </div>
+      <div class="slider-box">
+        <label>Contrast</label>
+        <input type="range" id="contrast" min="0" max="200" value="100">
+      </div>
+      <div class="slider-box">
+        <label>Sepia</label>
+        <input type="range" id="sepia" min="0" max="100" value="0">
+      </div>
+      <div class="slider-box">
+        <label>Grayscale</label>
+        <input type="range" id="grayscale" min="0" max="100" value="0">
+      </div>
+      <div class="slider-box">
+        <label>Blur</label>
+        <input type="range" id="blur" min="0" max="10" value="0">
+      </div>
+      <div class="slider-box">
+        <label>Hue Rotate</label>
+        <input type="range" id="hue" min="0" max="360" value="0">
+      </div>
+      <br>
+      <button onclick="resetFilters()">Reset</button>
+      <button onclick="downloadImage()">Download</button>
+      <button onclick="toggleGallery()">🎨 Filters Gallery</button>
+    </div>
+
+    <!-- Filters Gallery -->
+    <div class="filters-gallery" id="filters-gallery">
+      <div class="filter-option" onclick="applyPreset('none')">
+        <img id="thumb-none" src="" alt="None">
+        <span>Original</span>
+      </div>
+      <div class="filter-option" onclick="applyPreset('grayscale(100%)')">
+        <img id="thumb-bw" src="" alt="B&W">
+        <span>Black & White</span>
+      </div>
+      <div class="filter-option" onclick="applyPreset('sepia(80%)')">
+        <img id="thumb-sepia" src="" alt="Sepia">
+        <span>Sepia</span>
+      </div>
+      <div class="filter-option" onclick="applyPreset('contrast(150%) brightness(120%)')">
+        <img id="thumb-contrast" src="" alt="High Contrast">
+        <span>High Contrast</span>
+      </div>
+      <div class="filter-option" onclick="applyPreset('hue-rotate(200deg) saturate(150%)')">
+        <img id="thumb-cool" src="" alt="Cool">
+        <span>Cool Tone</span>
+      </div>
+      <div class="filter-option" onclick="applyPreset('hue-rotate(-30deg) saturate(150%)')">
+        <img id="thumb-warm" src="" alt="Warm">
+        <span>Warm Tone</span>
+      </div>
+      <div class="filter-option" onclick="applyPreset('invert(100%)')">
+        <img id="thumb-invert" src="" alt="Invert">
+        <span>Inverted</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const upload = document.getElementById("upload");
+    const original = document.getElementById("original");
+    const edited = document.getElementById("edited");
+    const imageBox = document.getElementById("image-box");
+    const slidersBox = document.getElementById("sliders-box");
+    const gallery = document.getElementById("filters-gallery");
+
+    const thumbs = {
+      "thumb-none": "none",
+      "thumb-bw": "grayscale(100%)",
+      "thumb-sepia": "sepia(80%)",
+      "thumb-contrast": "contrast(150%) brightness(120%)",
+      "thumb-cool": "hue-rotate(200deg) saturate(150%)",
+      "thumb-warm": "hue-rotate(-30deg) saturate(150%)",
+      "thumb-invert": "invert(100%)"
+    };
+
+    // sliders
+    const brightness = document.getElementById("brightness");
+    const contrast = document.getElementById("contrast");
+    const sepia = document.getElementById("sepia");
+    const grayscale = document.getElementById("grayscale");
+    const blur = document.getElementById("blur");
+    const hue = document.getElementById("hue");
+
+    upload.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const url = URL.createObjectURL(file);
+      original.src = url;
+      edited.src = url;
+
+      // thumbnails also update
+      Object.keys(thumbs).forEach(id => {
+        const thumb = document.getElementById(id);
+        thumb.src = url;
+        thumb.style.filter = thumbs[id];
+      });
+
+      imageBox.style.display = "flex";
+      slidersBox.style.display = "block";
+    });
+
+    function applyFilters() {
+      edited.style.filter = `
+        brightness(${brightness.value}%)
+        contrast(${contrast.value}%)
+        sepia(${sepia.value}%)
+        grayscale(${grayscale.value}%)
+        blur(${blur.value}px)
+        hue-rotate(${hue.value}deg)
+      `;
+    }
+
+    [brightness, contrast, sepia, grayscale, blur, hue].forEach(slider => {
+      slider.addEventListener("input", applyFilters);
+    });
+
+    function resetFilters() {
+      brightness.value = 100;
+      contrast.value = 100;
+      sepia.value = 0;
+      grayscale.value = 0;
+      blur.value = 0;
+      hue.value = 0;
+      applyFilters();
+    }
+
+    function downloadImage() {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      canvas.width = edited.naturalWidth;
+      canvas.height = edited.naturalHeight;
+
+      ctx.filter = edited.style.filter;
+      ctx.drawImage(original, 0, 0, canvas.width, canvas.height);
+
+      const link = document.createElement("a");
+      link.download = "edited-photo.png";
+      link.href = canvas.toDataURL();
+      link.click();
+    }
+
+    // toggle gallery
+    function toggleGallery() {
+      gallery.style.display = gallery.style.display === "flex" ? "none" : "flex";
+    }
+
+    // apply preset filter
+    function applyPreset(filter) {
+      edited.style.filter = filter;
+    }
+  </script>
+</body>
+</html>
