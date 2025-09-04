@@ -8,14 +8,40 @@
     body {
       font-family: Arial, sans-serif;
       margin: 0;
-      background: linear-gradient(135deg, #fbc2eb, #a6c1ee);
+      background: linear-gradient(135deg, #667eea, #764ba2);
       min-height: 100vh;
       display: flex;
       justify-content: center;
-      align-items: center;
+      align-items: flex-start;
+      padding-top: 80px;
     }
+
+    /* Navbar */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: #333;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+      box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
+    }
+    .navbar h2 { margin: 0; }
+    .navbar a {
+      color: white;
+      margin-left: 20px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .navbar a:hover { color: #f39c12; }
+
+    /* Main container */
     .container {
-      background: rgba(255, 255, 255, 0.95);
+      background: rgba(255, 255, 255, 0.97);
       padding: 25px;
       border-radius: 20px;
       box-shadow: 0px 8px 20px rgba(0,0,0,0.3);
@@ -23,7 +49,24 @@
       width: 100%;
       text-align: center;
     }
+
     h1 { color: #333; margin-bottom: 20px; }
+
+    /* Upload button */
+    .upload-btn {
+      display: inline-block;
+      padding: 12px 25px;
+      background: #e67e22;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .upload-btn:hover { background: #d35400; }
+    input[type="file"] { display: none; }
+
     .images {
       display: none;
       justify-content: space-around;
@@ -36,25 +79,49 @@
       border: 5px solid #ddd;
       border-radius: 10px;
     }
-    .sliders, .filters-gallery {
+
+    /* Accordion style */
+    .accordion { 
       display: none;
-      margin-top: 20px;
+      margin-top: 20px; 
+      text-align: left;
     }
-    .slider-box { margin: 15px 0; text-align: left; }
-    label { font-weight: bold; display: block; margin-bottom: 5px; color: #444; }
+    .accordion-item {
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .accordion-header {
+      background: #3498db;
+      color: white;
+      padding: 12px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .accordion-header:hover { background: #2980b9; }
+    .accordion-content {
+      display: none;
+      padding: 15px;
+      background: #f9f9f9;
+    }
+    .slider-box { margin: 12px 0; }
+    label { font-weight: bold; display: block; margin-bottom: 5px; }
+
     input[type="range"] { width: 100%; }
-    button {
+
+    button.action {
       margin: 10px 5px;
       padding: 10px 20px;
       border: none;
-      background: #3498db;
+      background: #2ecc71;
       color: white;
       font-size: 16px;
       cursor: pointer;
       border-radius: 8px;
       transition: 0.3s;
     }
-    button:hover { background: #2980b9; }
+    button.action:hover { background: #27ae60; }
 
     /* Filters gallery */
     .filters-gallery {
@@ -84,14 +151,33 @@
       font-size: 14px;
       color: #333;
     }
+
+    /* Footer text */
+    .footer {
+      margin-top: 20px;
+      font-weight: bold;
+      color: #555;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>🌟 Photo Filter Editor 🌟</h1>
-    <input type="file" id="upload" accept="image/*"><br>
+  <!-- Navbar -->
+  <div class="navbar">
+    <h2>AS Editor</h2>
+    <div>
+      <a href="#">Home</a>
+      <a href="#">About Me</a>
+    </div>
+  </div>
 
-    <!-- Images side by side -->
+  <!-- Main -->
+  <div class="container">
+    <h1>🌟 Free Enhanced Photo Editor 🌟</h1>
+
+    <label for="upload" class="upload-btn">Upload Your Photo</label>
+    <input type="file" id="upload" accept="image/*">
+
+    <!-- Images -->
     <div class="images" id="image-box">
       <div>
         <h3>Original</h3>
@@ -103,69 +189,88 @@
       </div>
     </div>
 
-    <!-- Sliders -->
-    <div class="sliders" id="sliders-box">
-      <div class="slider-box">
-        <label>Brightness</label>
-        <input type="range" id="brightness" min="0" max="200" value="100">
+    <!-- Accordion Options -->
+    <div class="accordion" id="accordion">
+
+      <!-- Sliders -->
+      <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">Adjust Colors</div>
+        <div class="accordion-content">
+          <div class="slider-box">
+            <label>Brightness</label>
+            <input type="range" id="brightness" min="0" max="200" value="100">
+          </div>
+          <div class="slider-box">
+            <label>Contrast</label>
+            <input type="range" id="contrast" min="0" max="200" value="100">
+          </div>
+          <div class="slider-box">
+            <label>Sepia</label>
+            <input type="range" id="sepia" min="0" max="100" value="0">
+          </div>
+          <div class="slider-box">
+            <label>Grayscale</label>
+            <input type="range" id="grayscale" min="0" max="100" value="0">
+          </div>
+          <div class="slider-box">
+            <label>Blur</label>
+            <input type="range" id="blur" min="0" max="10" value="0">
+          </div>
+          <div class="slider-box">
+            <label>Hue Rotate</label>
+            <input type="range" id="hue" min="0" max="360" value="0">
+          </div>
+        </div>
       </div>
-      <div class="slider-box">
-        <label>Contrast</label>
-        <input type="range" id="contrast" min="0" max="200" value="100">
+
+      <!-- Gallery -->
+      <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">🎨 Filters Gallery</div>
+        <div class="accordion-content">
+          <div class="filters-gallery" id="filters-gallery">
+            <div class="filter-option" onclick="applyPreset('none')">
+              <img id="thumb-none" src="" alt="None">
+              <span>Original</span>
+            </div>
+            <div class="filter-option" onclick="applyPreset('grayscale(100%)')">
+              <img id="thumb-bw" src="" alt="B&W">
+              <span>Black & White</span>
+            </div>
+            <div class="filter-option" onclick="applyPreset('sepia(80%)')">
+              <img id="thumb-sepia" src="" alt="Sepia">
+              <span>Sepia</span>
+            </div>
+            <div class="filter-option" onclick="applyPreset('contrast(150%) brightness(120%)')">
+              <img id="thumb-contrast" src="" alt="High Contrast">
+              <span>High Contrast</span>
+            </div>
+            <div class="filter-option" onclick="applyPreset('hue-rotate(200deg) saturate(150%)')">
+              <img id="thumb-cool" src="" alt="Cool">
+              <span>Cool Tone</span>
+            </div>
+            <div class="filter-option" onclick="applyPreset('hue-rotate(-30deg) saturate(150%)')">
+              <img id="thumb-warm" src="" alt="Warm">
+              <span>Warm Tone</span>
+            </div>
+            <div class="filter-option" onclick="applyPreset('invert(100%)')">
+              <img id="thumb-invert" src="" alt="Invert">
+              <span>Inverted</span>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="slider-box">
-        <label>Sepia</label>
-        <input type="range" id="sepia" min="0" max="100" value="0">
+
+      <!-- Actions -->
+      <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">Actions</div>
+        <div class="accordion-content">
+          <button class="action" onclick="resetFilters()">Reset</button>
+          <button class="action" onclick="downloadImage()">Download</button>
+        </div>
       </div>
-      <div class="slider-box">
-        <label>Grayscale</label>
-        <input type="range" id="grayscale" min="0" max="100" value="0">
-      </div>
-      <div class="slider-box">
-        <label>Blur</label>
-        <input type="range" id="blur" min="0" max="10" value="0">
-      </div>
-      <div class="slider-box">
-        <label>Hue Rotate</label>
-        <input type="range" id="hue" min="0" max="360" value="0">
-      </div>
-      <br>
-      <button onclick="resetFilters()">Reset</button>
-      <button onclick="downloadImage()">Download</button>
-      <button onclick="toggleGallery()">🎨 Filters Gallery</button>
     </div>
 
-    <!-- Filters Gallery -->
-    <div class="filters-gallery" id="filters-gallery">
-      <div class="filter-option" onclick="applyPreset('none')">
-        <img id="thumb-none" src="" alt="None">
-        <span>Original</span>
-      </div>
-      <div class="filter-option" onclick="applyPreset('grayscale(100%)')">
-        <img id="thumb-bw" src="" alt="B&W">
-        <span>Black & White</span>
-      </div>
-      <div class="filter-option" onclick="applyPreset('sepia(80%)')">
-        <img id="thumb-sepia" src="" alt="Sepia">
-        <span>Sepia</span>
-      </div>
-      <div class="filter-option" onclick="applyPreset('contrast(150%) brightness(120%)')">
-        <img id="thumb-contrast" src="" alt="High Contrast">
-        <span>High Contrast</span>
-      </div>
-      <div class="filter-option" onclick="applyPreset('hue-rotate(200deg) saturate(150%)')">
-        <img id="thumb-cool" src="" alt="Cool">
-        <span>Cool Tone</span>
-      </div>
-      <div class="filter-option" onclick="applyPreset('hue-rotate(-30deg) saturate(150%)')">
-        <img id="thumb-warm" src="" alt="Warm">
-        <span>Warm Tone</span>
-      </div>
-      <div class="filter-option" onclick="applyPreset('invert(100%)')">
-        <img id="thumb-invert" src="" alt="Invert">
-        <span>Inverted</span>
-      </div>
-    </div>
+    <div class="footer">✨ Free Enhanced Photo Editor ✨</div>
   </div>
 
   <script>
@@ -173,8 +278,7 @@
     const original = document.getElementById("original");
     const edited = document.getElementById("edited");
     const imageBox = document.getElementById("image-box");
-    const slidersBox = document.getElementById("sliders-box");
-    const gallery = document.getElementById("filters-gallery");
+    const accordion = document.getElementById("accordion");
 
     const thumbs = {
       "thumb-none": "none",
@@ -201,7 +305,7 @@
       original.src = url;
       edited.src = url;
 
-      // thumbnails also update
+      // thumbnails update
       Object.keys(thumbs).forEach(id => {
         const thumb = document.getElementById(id);
         thumb.src = url;
@@ -209,7 +313,7 @@
       });
 
       imageBox.style.display = "flex";
-      slidersBox.style.display = "block";
+      accordion.style.display = "block";
     });
 
     function applyFilters() {
@@ -252,9 +356,10 @@
       link.click();
     }
 
-    // toggle gallery
-    function toggleGallery() {
-      gallery.style.display = gallery.style.display === "flex" ? "none" : "flex";
+    // accordion toggle
+    function toggleAccordion(header) {
+      const content = header.nextElementSibling;
+      content.style.display = content.style.display === "block" ? "none" : "block";
     }
 
     // apply preset filter
